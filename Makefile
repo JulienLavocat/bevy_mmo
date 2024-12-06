@@ -1,7 +1,7 @@
 server:
-	cargo run --bin server
+	cargo run --features bevy/dynamic_linking --bin server
 client:
-	cargo run --bin client
+	cargo run --features bevy/dynamic_linking --bin client 
 
 .PHONY: client
 .PHONY: server

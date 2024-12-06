@@ -4,3 +4,6 @@ members = ["server", "client", "shared"]
 
 [workspace.dependencies]
 bevy = "0.15.0"
+bevy_rapier3d = { git = "https://github.com/Vrixyz/bevy_rapier", branch = "master-bevy_0.15" }
+bevy_renet = "0.0.12"
+bevy-inspector-egui = "0.28.0"
