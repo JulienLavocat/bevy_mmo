@@ -516,6 +516,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-tnua"
+version = "0.20.0"
+source = "git+https://github.com/JulienLavocat/bevy-tnua#852449195741c5c983ad615f512aa546d1e05317"
+dependencies = [
+ "bevy",
+ "bevy-tnua-physics-integration-layer",
+ "thiserror",
+]
+
+[[package]]
+name = "bevy-tnua-avian3d"
+version = "0.1.1"
+source = "git+https://github.com/JulienLavocat/bevy-tnua#852449195741c5c983ad615f512aa546d1e05317"
+dependencies = [
+ "avian3d",
+ "bevy",
+ "bevy-tnua-physics-integration-layer",
+]
+
+[[package]]
+name = "bevy-tnua-physics-integration-layer"
+version = "0.4.0"
+source = "git+https://github.com/JulienLavocat/bevy-tnua#852449195741c5c983ad615f512aa546d1e05317"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_a11y"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1798,6 +1826,8 @@ dependencies = [
  "avian3d",
  "bevy",
  "bevy-inspector-egui",
+ "bevy-tnua",
+ "bevy-tnua-avian3d",
  "bevy_remote_inspector",
  "shared",
  "tiny_bail",

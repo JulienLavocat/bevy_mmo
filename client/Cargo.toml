@@ -16,3 +16,5 @@ bevy-inspector-egui = { workspace = true }
 bevy_remote_inspector = { workspace = true }
 tiny_bail = { workspace = true }
 avian3d = { workspace = true }
+bevy-tnua = { git = "https://github.com/JulienLavocat/bevy-tnua" }
+bevy-tnua-avian3d = { git = "https://github.com/JulienLavocat/bevy-tnua" }

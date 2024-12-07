@@ -1,4 +1,4 @@
-use avian3d::prelude::Collider;
+use avian3d::prelude::{Collider, RigidBody};
 use bevy::{
     color::palettes::css::{BLUE, DARK_GREEN},
     prelude::*,
@@ -25,7 +25,8 @@ fn spawn_world(
         Name::new("Ground"),
         Mesh3d(meshes.add(Plane3d::default().mesh().size(50.0, 50.0))),
         MeshMaterial3d(materials.add(Color::from(DARK_GREEN))),
-        Collider::cuboid(50.0, 0.01, 50.0),
+        RigidBody::Static,
+        Collider::cuboid(50.0, 0.1, 50.0),
     ));
 
     commands.spawn((
@@ -34,5 +35,6 @@ fn spawn_world(
         Mesh3d(meshes.add(Cuboid::new(3.0, 3.0, 3.0))),
         MeshMaterial3d(materials.add(Color::from(BLUE))),
         Collider::cuboid(3.0, 3.0, 3.0),
+        RigidBody::Static,
     ));
 }
