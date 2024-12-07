@@ -1,25 +1,20 @@
 use std::{f32::consts::FRAC_PI_2, time::Duration};
 
+use avian3d::prelude::Collider;
 use bevy::{
     input::mouse::AccumulatedMouseMotion,
     prelude::*,
     window::{CursorGrabMode, PrimaryWindow},
 };
+use tiny_bail::{or_return, or_return_quiet};
 
 pub struct PlayerPlugin;
 
 const PLAYER_MODEL_PATH: &str = "player/player.glb";
 const IDLE_ANIMATION: usize = 0;
-const CAMERA_SPEED: f32 = 3.0;
+const CAMERA_SPEED: f32 = 10.0;
 const CAMERA_SENSITIVITY: Vec2 = Vec2::new(0.003, 0.002);
 const CAMERA_PITCH_LIMIT: f32 = FRAC_PI_2 - 0.01;
-
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_player)
-            .add_systems(Update, (move_player, play_animations));
-    }
-}
 
 #[derive(Debug, Component)]
 pub struct Player;
@@ -28,6 +23,14 @@ pub struct Player;
 pub struct PlayerAnimations {
     animations: Vec<AnimationNodeIndex>,
     graph: Handle<AnimationGraph>,
+}
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, spawn_player)
+            .add_systems(Update, play_animations)
+            .add_systems(Update, (rotate_player, move_player).chain());
+    }
 }
 
 fn play_animations(
@@ -41,6 +44,7 @@ fn play_animations(
         transitions
             .play(&mut player, animations.animations[0], Duration::ZERO)
             .repeat();
+
         commands
             .entity(entity)
             .insert(AnimationGraphHandle(animations.graph.clone()))
@@ -71,28 +75,64 @@ fn spawn_player(
         Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::new(0.0, 1.0, 0.0), Vec3::Y),
     ));
 
-    commands.spawn((
-        Name::new("Player"),
-        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(PLAYER_MODEL_PATH))),
-        Transform::from_xyz(0.0, 2.0, 0.0).with_scale(Vec3::new(0.01, 0.01, 0.01)),
-        Player,
-    ));
+    commands
+        .spawn((
+            Name::new("Player"),
+            Player,
+            Transform::from_xyz(0.0, 0.0, 0.0),
+            Collider::capsule_endpoints(0.3, Vec3::new(0.0, 0.3, 0.0), Vec3::new(0.0, 1.5, 0.0)),
+            InheritedVisibility::default(), // Remove a warning at runtime
+        ))
+        .with_child((
+            SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset(PLAYER_MODEL_PATH))),
+            Transform::default().with_scale(Vec3::new(0.01, 0.01, 0.01)),
+        ));
 }
 
 fn move_player(
+    time: Res<Time>,
+    input: Res<ButtonInput<KeyCode>>,
+    mut q_controllers: Query<&mut Transform, With<Camera3d>>,
+) {
+    let mut transform = or_return!(q_controllers.get_single_mut());
+
+    let mut horizontal = 0.0;
+    let mut vertical = 0.0;
+
+    if input.pressed(KeyCode::KeyW) {
+        vertical -= CAMERA_SPEED;
+    }
+    if input.pressed(KeyCode::KeyS) {
+        vertical += CAMERA_SPEED;
+    }
+
+    if input.pressed(KeyCode::KeyA) {
+        horizontal -= CAMERA_SPEED;
+    }
+    if input.pressed(KeyCode::KeyD) {
+        horizontal += CAMERA_SPEED;
+    }
+
+    let towards = transform.rotation;
+    let mut translation =
+        towards * Vec3::new(horizontal, 0.0, vertical).normalize_or_zero() * time.delta_secs();
+
+    if input.pressed(KeyCode::ShiftLeft) {
+        translation *= 4.0
+    }
+
+    transform.translation += translation
+}
+
+fn rotate_player(
     mut q_transform: Query<&mut Transform, With<Camera3d>>,
     mut q_windows: Query<&mut Window, With<PrimaryWindow>>,
-    kb_input: Res<ButtonInput<KeyCode>>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     accumulated_mouse_motion: Res<AccumulatedMouseMotion>,
-    time: Res<Time>,
 ) {
     // For now, camera free move
-    let mut transform = match q_transform.get_single_mut() {
-        Ok(transform) => transform,
-        _ => return,
-    };
-    let mut primary_window = q_windows.single_mut();
+    let mut transform = or_return_quiet!(q_transform.get_single_mut());
+    let mut primary_window = or_return!(q_windows.get_single_mut());
 
     if mouse_input.just_pressed(MouseButton::Right) {
         primary_window.cursor_options.grab_mode = CursorGrabMode::Locked;
@@ -113,27 +153,4 @@ fn move_player(
 
         transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
     }
-
-    // Camera position, every frame
-    let mut horizontal = 0.0;
-    let mut vertical = 0.0;
-
-    if kb_input.pressed(KeyCode::KeyW) {
-        vertical -= CAMERA_SPEED;
-    }
-    if kb_input.pressed(KeyCode::KeyS) {
-        vertical += CAMERA_SPEED;
-    }
-
-    if kb_input.pressed(KeyCode::KeyA) {
-        horizontal -= CAMERA_SPEED;
-    }
-    if kb_input.pressed(KeyCode::KeyD) {
-        horizontal += CAMERA_SPEED;
-    }
-
-    let towards = transform.rotation;
-
-    transform.translation +=
-        towards * Vec3::new(horizontal, 0.0, vertical).normalize_or_zero() * time.delta_secs();
 }
