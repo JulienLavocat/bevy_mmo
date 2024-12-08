@@ -21,6 +21,8 @@ fn spawn_world(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    info!("spawning world");
+
     commands.spawn((
         Name::new("Ground"),
         Mesh3d(meshes.add(Plane3d::default().mesh().size(50.0, 50.0))),
