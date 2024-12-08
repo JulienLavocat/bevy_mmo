@@ -8,9 +8,9 @@ use bevy::{
     render::mesh::MeshPlugin,
 };
 use bevy_remote_inspector::RemoteInspectorPlugins;
-use server::ServerPlugin;
+use server_net::NetworkPlugin;
 
-mod server;
+mod server_net;
 
 fn main() {
     App::new()
@@ -21,7 +21,9 @@ fn main() {
             // DefaultPlugins without feature-based plugins (minus the ones from MinimalPlugins)
             PanicHandlerPlugin,
             LogPlugin {
-                level: Level::TRACE,
+                level: Level::DEBUG,
+                filter: "wgpu=error,naga=warn,bevy=info,offset_allocator=info,winit=info"
+                    .to_owned(),
                 ..default()
             },
             TransformPlugin,
@@ -34,6 +36,6 @@ fn main() {
         // Project's plugins
         .add_plugins(RemoteInspectorPlugins)
         // Server code
-        .add_plugins(ServerPlugin)
+        .add_plugins(NetworkPlugin)
         .run();
 }

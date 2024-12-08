@@ -7,3 +7,4 @@ edition = "2021"
 shared = { path = "../shared" }
 bevy = { workspace = true }
 bevy_remote_inspector = { workspace = true }
+bevy_renet = { workspace = true }
