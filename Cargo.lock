@@ -1602,6 +1602,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bincode"
+version = "1.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bindgen"
 version = "0.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1887,6 +1896,9 @@ dependencies = [
  "bevy-tnua-avian3d",
  "bevy_remote_inspector",
  "bevy_renet",
+ "bincode",
+ "enum_dispatch",
+ "serde",
  "shared",
  "tiny_bail",
 ]
@@ -2362,6 +2374,18 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f97b51c5cc57ef7c5f7a0c57c250251c49ee4c28f819f87ac32f4aceabc36792"
 dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
+]
+
+[[package]]
+name = "enum_dispatch"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa18ce2bc66555b3218614519ac839ddb759a7d6720732f979ef8d13be147ecd"
+dependencies = [
+ "once_cell",
  "proc-macro2",
  "quote",
  "syn 2.0.90",
@@ -4808,6 +4832,8 @@ dependencies = [
  "bevy",
  "bevy_remote_inspector",
  "bevy_renet",
+ "bincode",
+ "serde",
  "shared",
 ]
 
@@ -4837,6 +4863,10 @@ version = "0.1.0"
 dependencies = [
  "avian3d",
  "bevy",
+ "bevy_renet",
+ "bincode",
+ "enum_dispatch",
+ "serde",
 ]
 
 [[package]]

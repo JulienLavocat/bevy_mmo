@@ -1,19 +1,18 @@
 use std::{net::UdpSocket, time::SystemTime};
 
-use bevy::{
-    app::{Plugin, Startup, Update},
-    prelude::ResMut,
-};
+use bevy::prelude::*;
 use bevy_renet::{
     netcode::{ClientAuthentication, NetcodeClientPlugin, NetcodeClientTransport},
     renet::{ConnectionConfig, DefaultChannel, RenetClient},
     RenetClientPlugin,
 };
+use shared::events_set::AddEventSet;
+use shared::server_packets::*;
 
 pub struct NetworkPlugin;
 
 impl Plugin for NetworkPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
+    fn build(&self, app: &mut App) {
         let server_address = "127.0.0.1:5000".parse().unwrap();
         let client = RenetClient::new(ConnectionConfig::default());
         let socket = UdpSocket::bind("0.0.0.0:0").unwrap();
@@ -31,17 +30,13 @@ impl Plugin for NetworkPlugin {
             .add_plugins(NetcodeClientPlugin)
             .insert_resource(client)
             .insert_resource(transport)
-            .add_systems(Startup, send_message)
-            .add_systems(Update, receive_message_system);
+            .add_event_set::<ServerPacketsWriter>()
+            .add_systems(PreUpdate, receive_server_packets);
     }
 }
 
-fn send_message(mut client: ResMut<RenetClient>) {
-    client.send_message(DefaultChannel::ReliableOrdered, "hello server");
-}
-
-fn receive_message_system(mut client: ResMut<RenetClient>) {
+fn receive_server_packets(mut client: ResMut<RenetClient>, mut packets: ServerPacketsWriter) {
     while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered) {
-        println!("got message from server: {:?}", message);
+        handle_server_packet(&mut packets, &message);
     }
 }

@@ -6,6 +6,11 @@ use bevy_renet::{
     renet::{ConnectionConfig, DefaultChannel, RenetServer, ServerEvent},
     RenetServerPlugin,
 };
+use shared::{
+    client_packets::{handle_client_packet, ClientPacketEventsWriter},
+    events_set::AddEventSet,
+    server_packets::*,
+};
 
 pub struct NetworkPlugin;
 
@@ -30,16 +35,25 @@ impl Plugin for NetworkPlugin {
             .insert_resource(server)
             .add_plugins(NetcodeServerPlugin)
             .insert_resource(transport)
-            .add_systems(Update, (handle_events, receive_messages));
+            .add_event_set::<ClientPacketEventsWriter>()
+            .add_systems(PreUpdate, (handle_events, receive_client_packets));
         info!("server listening on {:?}", server_address_raw);
     }
 }
 
-fn handle_events(mut server_events: EventReader<ServerEvent>) {
+fn handle_events(mut server_events: EventReader<ServerEvent>, mut server: ResMut<RenetServer>) {
     for event in server_events.read() {
         match event {
             ServerEvent::ClientConnected { client_id } => {
                 println!("{} connected", client_id);
+                let packet = &ServerPacket::SpawnPlayer(SpawnPlayer {
+                    location: Vec3::new(10.0, 10.0, 10.0),
+                });
+                server.send_message(
+                    *client_id,
+                    DefaultChannel::ReliableOrdered,
+                    bincode::serialize(packet).unwrap(),
+                );
             }
             ServerEvent::ClientDisconnected { client_id, reason } => {
                 println!("{} disconnected for: {}", client_id, reason);
@@ -48,11 +62,11 @@ fn handle_events(mut server_events: EventReader<ServerEvent>) {
     }
 }
 
-fn receive_messages(mut server: ResMut<RenetServer>) {
+fn receive_client_packets(mut server: ResMut<RenetServer>, mut packets: ClientPacketEventsWriter) {
     for client_id in server.clients_id() {
         while let Some(message) = server.receive_message(client_id, DefaultChannel::ReliableOrdered)
         {
-            println!("Got message: {:?}", message)
+            handle_client_packet(&mut packets, &message);
         }
     }
 }
