@@ -1,6 +1,6 @@
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::{
-    color::palettes::css::{BLUE, DARK_GREEN},
+    color::palettes::css::{BLUE, DARK_GREEN, ORANGE, RED},
     prelude::*,
 };
 
@@ -37,6 +37,33 @@ fn spawn_world(
         Mesh3d(meshes.add(Cuboid::new(3.0, 3.0, 3.0))),
         MeshMaterial3d(materials.add(Color::from(BLUE))),
         Collider::cuboid(3.0, 3.0, 3.0),
+        RigidBody::Static,
+    ));
+
+    commands.spawn((
+        Name::new("Red cube"),
+        Transform::from_xyz(2.0, 0.5, 2.0),
+        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
+        MeshMaterial3d(materials.add(Color::from(RED))),
+        Collider::cuboid(1.0, 1.0, 1.0),
+        RigidBody::Static,
+    ));
+
+    commands.spawn((
+        Name::new("Red cube"),
+        Transform::from_xyz(2.0, 0.5, 2.0),
+        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
+        MeshMaterial3d(materials.add(Color::from(RED))),
+        Collider::cuboid(1.0, 1.0, 1.0),
+        RigidBody::Static,
+    ));
+
+    commands.spawn((
+        Name::new("Orange cube"),
+        Transform::from_xyz(-2.0, 0.9, 4.0),
+        Mesh3d(meshes.add(Cuboid::new(1.8, 1.8, 1.8))),
+        MeshMaterial3d(materials.add(Color::from(ORANGE))),
+        Collider::cuboid(1.8, 1.8, 1.8),
         RigidBody::Static,
     ));
 }
