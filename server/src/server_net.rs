@@ -45,7 +45,7 @@ fn handle_events(mut server_events: EventReader<ServerEvent>, mut server: ResMut
     for event in server_events.read() {
         match event {
             ServerEvent::ClientConnected { client_id } => {
-                println!("{} connected", client_id);
+                info!("{} connected", client_id);
                 let packet = &ServerPacket::SpawnPlayer(SpawnPlayer {
                     location: Vec3::new(10.0, 10.0, 10.0),
                 });
@@ -56,7 +56,7 @@ fn handle_events(mut server_events: EventReader<ServerEvent>, mut server: ResMut
                 );
             }
             ServerEvent::ClientDisconnected { client_id, reason } => {
-                println!("{} disconnected for: {}", client_id, reason);
+                info!("{} disconnected for: {}", client_id, reason);
             }
         }
     }

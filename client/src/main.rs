@@ -20,11 +20,22 @@ use shared::world::WorldPlugin;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(LogPlugin {
-            level: Level::DEBUG,
-            filter: "wgpu=error,naga=warn,bevy=info,offset_allocator=info,winit=info".to_owned(),
-            ..Default::default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(LogPlugin {
+                    level: Level::DEBUG,
+                    filter: "wgpu=error,naga=warn,bevy=info,offset_allocator=info,winit=info"
+                        .to_owned(),
+                    ..default()
+                })
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        position: WindowPosition::Centered(MonitorSelection::Current),
+                        ..default()
+                    }),
+                    ..default()
+                }),
+        )
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(RemoteInspectorPlugins)
         .add_plugins((PhysicsPlugins::default(), PhysicsDebugPlugin::default()))
